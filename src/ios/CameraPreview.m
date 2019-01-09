@@ -1,6 +1,6 @@
-#import <GCMVP/GCMVP.h>
-#import <GCMVP/CDVPlugin.h>
-#import <GCMVP/CDVInvokedUrlCommand.h>
+#import <Cordova/CDV.h>
+#import <Cordova/CDVPlugin.h>
+#import <Cordova/CDVInvokedUrlCommand.h>
 
 #import "CameraPreview.h"
 
