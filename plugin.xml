@@ -13,37 +13,6 @@
     <clobbers target="CameraPreview" />
   </js-module>
 
-  <platform name="android">
-    <source-file src="src/android/CameraPreview.java" target-dir="src/com/cordovaplugincamerapreview" />
-    <source-file src="src/android/CameraActivity.java" target-dir="src/com/cordovaplugincamerapreview" />
-    <source-file src="src/android/CustomSurfaceView.java" target-dir="src/com/cordovaplugincamerapreview" />
-    <source-file src="src/android/Preview.java" target-dir="src/com/cordovaplugincamerapreview" />
-    <source-file src="src/android/TapGestureDetector.java" target-dir="src/com/cordovaplugincamerapreview" />
-    <source-file src="src/android/camera_activity.xml" target-dir="res/layout" />
-    <source-file src="src/android/camera_theme.xml" target-dir="res/values" />
-    <source-file src="src/android/camera_ids.xml" target-dir="res/values" />
-
-    <preference name="ANDROID_SUPPORT_LIBRARY_VERSION" default="25+"/>
-    <framework src="com.android.support:exifinterface:$ANDROID_SUPPORT_LIBRARY_VERSION" />
-
-    <config-file target="res/xml/config.xml" parent="/*">
-      <feature name="CameraPreview">
-        <param name="android-package" value="com.cordovaplugincamerapreview.CameraPreview" />
-        <param name="onload" value="true" />
-      </feature>
-    </config-file>
-
-    <config-file target="AndroidManifest.xml" parent="/manifest">
-      <uses-feature android:name="android.hardware.camera" android:required="true"/>
-      <uses-feature android:name="android.hardware.camera.autofocus" />
-      <uses-permission android:name="android.permission.CAMERA" />
-    </config-file>
-
-    <config-file target="AndroidManifest.xml" parent="/manifest/application">
-      <activity android:name="com.cordovaplugincamerapreview.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
-    </config-file>
-  </platform>
-
   <platform name="ios">
     <config-file target="config.xml" parent="/*">
       <feature name="CameraPreview">

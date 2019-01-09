@@ -1,6 +1,6 @@
-#import <Cordova/CDV.h>
-#import <Cordova/CDVPlugin.h>
-#import <Cordova/CDVInvokedUrlCommand.h>
+#import <GCMVP/GCMVP.h>
+#import <GCMVP/CDVPlugin.h>
+#import <GCMVP/CDVInvokedUrlCommand.h>
 
 #import "CameraPreview.h"
 
@@ -34,7 +34,6 @@
     CGFloat alpha = (CGFloat)[command.arguments[8] floatValue];
     BOOL tapToFocus = (BOOL) [command.arguments[9] boolValue];
     BOOL disableExifHeaderStripping = (BOOL) [command.arguments[10] boolValue]; // ignore Android only
-    BOOL storeToFile = (BOOL) [command.arguments[11] boolValue]; // ignore Android only
 
     // Create the session manager
     self.sessionManager = [[CameraSessionManager alloc] init];
@@ -449,7 +448,7 @@
 }
 
 - (void) takePicture:(CDVInvokedUrlCommand*)command {
-  NSLog(@"takePicture");
+  // NSLog(@"takePicture");
   CDVPluginResult *pluginResult;
 
   if (self.cameraRenderController != NULL) {
@@ -670,20 +669,20 @@
 }
 
 - (void) invokeTakePicture:(CGFloat) width withHeight:(CGFloat) height withQuality:(CGFloat) quality{
-    AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
-    [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
+    // AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+    //[self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
 
-      NSLog(@"Done creating still image");
+      // NSLog(@"Done creating still image");
 
-      if (error) {
-        NSLog(@"%@", error);
-      } else {
-        NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:sampleBuffer];
-        UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];
+      //if (error) {
+      //  NSLog(@"%@", error);
+      //} else {
+        //NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:sampleBuffer];
+        //UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];
 
-        CIImage *capturedCImage;
+        CIImage *capturedCImage = self.cameraRenderController.latestFrame;
         //image resize
-
+/*
         if(width > 0 && height > 0){
           CGFloat scaleHeight = width/capturedImage.size.height;
           CGFloat scaleWidth = height/capturedImage.size.width;
@@ -697,17 +696,18 @@
         }else{
           capturedCImage = [[CIImage alloc] initWithCGImage:[capturedImage CGImage]];
         }
+    */
 
         CIImage *imageToFilter;
         CIImage *finalCImage;
 
         //fix front mirroring
-        if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
-          CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedCImage.extent.size.height);
-          imageToFilter = [capturedCImage imageByApplyingTransform:matrix];
-        } else {
+        //if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
+        //  CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedCImage.extent.size.height);
+        //  imageToFilter = [capturedCImage imageByApplyingTransform:matrix];
+        //} else {
           imageToFilter = capturedCImage;
-        }
+        //}
 
         CIFilter *filter = [self.sessionManager ciFilter];
         if (filter != nil) {
@@ -722,23 +722,23 @@
         NSMutableArray *params = [[NSMutableArray alloc] init];
 
         CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
-        UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
+        // UIImage *resultImage = [UIImage imageWithCGImage:finalImage];
 
-        double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
-        CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
+        //double radians = [self radiansFromUIImageOrientation:resultImage.imageOrientation];
+        //CGImageRef resultFinalImage = [self CGImageRotated:finalImage withRadians:radians];
+
+        //CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
+
+        NSString *base64Image = [self getBase64Image:finalImage withQuality:quality];
 
         CGImageRelease(finalImage); // release CGImageRef to remove memory leaks
-
-        NSString *base64Image = [self getBase64Image:resultFinalImage withQuality:quality];
-
-        CGImageRelease(resultFinalImage); // release CGImageRef to remove memory leaks
 
         [params addObject:base64Image];
 
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
         [pluginResult setKeepCallbackAsBool:true];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
-      }
-    }];
+      //}
+    //}];
 }
 @end
